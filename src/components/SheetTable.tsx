@@ -10,11 +10,16 @@ interface Props {
   onDelete: (entry: Entry) => void;
 }
 
-
-// function isLikelyNumber(text: string) {
-//   return /^[\d\s.,:+\-\/()]*$/.test(text);
-// }
-
+const headerHebrewMap: Record<string, string> = {
+  product: 'מוצר',
+  category: 'קטגוריה',
+  amount: 'כמות',
+  date: 'תאריך',
+  cleanState: 'נקי',
+  skinState: 'עור',
+  comments: 'הערות',
+  units: 'יחידות',
+}
 
 export const SheetTable: React.FC<Props> = ({ entries, onEdit, onDelete }) => {
   const grouped = useMemo(() => groupByCategory(entries), [entries]);
@@ -26,17 +31,6 @@ export const SheetTable: React.FC<Props> = ({ entries, onEdit, onDelete }) => {
   const headers = ['product', 'category', 'date', 'amount', 'units', 'cleanState', 'skinState', 'comments'];
   const rtl = { direction: 'rtl' as const };
 
-  
-const headerHebrewMap: Record<string, string> = {
-  product: 'מוצר',
-  category: 'קטגוריה',
-  amount: 'כמות',
-  date: 'תאריך',
-  cleanState: 'נקי',
-  skinState: 'עור',
-  comments: 'הערות',
-  units: 'יחידות',
-  }
 
   return (
     <div className="table-wrapper" style={rtl}>

@@ -8,7 +8,7 @@ const toCategory = (s?: string): Category =>
   (VALID_CATEGORIES as string[]).includes((s ?? '').trim()) ? (s as Category) : 'אחר';
 
 
-export const SHEET_ID = '1nIsjXANpvYuj5gOBbbsLh0TEGwrN4V_O';
+export const SHEET_ID = '1cATOOjCiKx5VUKsn7CrjY6_-SiCh0RYu_HMJPZ9Lz78';
 export const SHEET_NAME = 'list';
 export const CSV_URL =
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
