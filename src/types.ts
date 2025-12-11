@@ -1,6 +1,6 @@
 
-export type Category = 'בשר' | 'בצק' | 'טבעול' | 'אחר';
-export const CATEGORIES: Category[] = ['בשר', 'בצק', 'טבעול', 'אחר'];
+export type Category = 'בשר' | 'בצק' | 'טבעול' | 'אוכל מוכן' | 'דגים' | 'עוגות' | 'אחר';
+export const CATEGORIES: Category[] = ['בשר', 'בצק', 'טבעול', 'אוכל מוכן', 'דגים', 'עוגות', 'אחר'];
 
 export interface Entry {
     id: string;

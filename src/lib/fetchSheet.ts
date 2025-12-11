@@ -2,10 +2,10 @@
 // src/lib/fetchSheet.ts
 import Papa from 'papaparse';
 import type { Entry, Category } from '../types';
+import { CATEGORIES } from '../types';
 
-const VALID_CATEGORIES: Category[] = ['בשר', 'בצק', 'טבעול', 'אחר'];
 const toCategory = (s?: string): Category =>
-  (VALID_CATEGORIES as string[]).includes((s ?? '').trim()) ? (s as Category) : 'אחר';
+  (CATEGORIES as string[]).includes((s ?? '').trim()) ? (s as Category) : 'אחר';
 
 
 export const SHEET_ID = '1cATOOjCiKx5VUKsn7CrjY6_-SiCh0RYu_HMJPZ9Lz78';

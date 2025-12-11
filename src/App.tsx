@@ -1,4 +1,3 @@
-
 // src/App.tsx
 import { useEffect, useState } from 'react';
 import './styles.css';
@@ -122,6 +121,35 @@ async function boot() {
     }
   };
 
+  const onQuickAdjust = async (entry: Entry, delta: number) => {
+    try {
+      // optimistic UI
+      setEntries(prev => prev.map(e => {
+        if (e.id === entry.id) {
+          const next = Math.max(0, (isNaN(e.amount) ? 0 : e.amount) + delta);
+          return { ...e, amount: next };
+        }
+        return e;
+      }));
+
+      // persist
+      const sid = sheetId;
+      if (sid == null) throw new Error('missing sheetId');
+      const newAmount = Math.max(0, (isNaN(entry.amount) ? 0 : entry.amount) + delta);
+      const updated: Entry = { ...entry, amount: newAmount };
+      await updateEntryById({ spreadsheetId: SPREADSHEET_ID, sheetName: SHEET_NAME }, sid, entry.id, updated);
+
+      // optional: refresh from server (not strictly needed)
+      // await reload();
+    } catch (e: any) {
+      console.error(e);
+      setError(e?.result?.error?.message ?? e?.message ?? String(e));
+      setStatus('שגיאה בעדכון.');
+      // revert optimistic change if needed
+      await reload();
+    }
+  };
+
   return (
     <main className="container" dir="rtl">
       <header className="app-header">
@@ -133,7 +161,12 @@ async function boot() {
       {error ? <div className="error">שגיאה: {error}</div> : <div className="status">{status}</div>}
 
       {entries.length > 0 && (
-        <SheetTable entries={entries} onEdit={openEdit} onDelete={onDelete} />
+        <SheetTable
+          entries={entries}
+          onEdit={openEdit}
+          onDelete={onDelete}
+          onQuickAdjust={onQuickAdjust}
+        />
       )}
 
       <EntryForm

@@ -3,10 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://yshauser.github.io/FreezerList",
+
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",  
+   "predeploy": "npm run build",
+   "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "@types/gapi": "^0.0.47",
@@ -19,6 +23,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "gh-pages": "^6.3.0",
     "papaparse": "^5.5.3",
     "react-dom": "^19.2.1"
   }

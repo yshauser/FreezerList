@@ -46,7 +46,7 @@ body {
 .btn-primary:hover { filter: brightness(1.05); }
 .btn-secondary:hover { filter: brightness(1.1); }
 
-.table-wrapper { display: grid; gap: 12px; }
+.table-wrapper { width: 100%; }
 .category { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
 .category-header {
   display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer;
@@ -55,33 +55,10 @@ body {
 .category-header h3 { margin: 0; font-size: 1.1rem; }
 .category-header small { color: var(--muted); }
 
-.nice-table { width: 100%; border-collapse: collapse; }
-.nice-table th, .nice-table td {
-  border-bottom: 1px solid var(--border);
-  padding: 8px 10px;
-  vertical-align: top;
-}
-.nice-table thead th {
-  background: #0b1324;
-  text-align: start;
-  font-weight: 700;
-}
-.nice-table tbody tr:hover { background: #0e1a30; }
-.nice-table td.num { text-align: start; }
-.nice-table td.comments { color: #cbd5e1; }
-
-
-/* styles.css additions */
-.nice-table th.sortable {
-  cursor: pointer;
-  user-select: none;
-}
-
 .sort-arrow {
   margin-inline-start: 6px;
   color: var(--muted);
 }
-
 
 
 .icon-btn {
@@ -127,7 +104,6 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   position: relative; /* for the hidden native input positioning */
 }
 
-
 .date-native {
   /* keep it tiny but available for the native picker */
   width: 1px;
@@ -156,3 +132,126 @@ select {
   padding: 8px;
   outline: none;
 }
+
+/* nice table */
+.nice-table { width: 100%; border-collapse: collapse; }
+.nice-table th, .nice-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 10px;
+  vertical-align: top;
+}
+.nice-table thead th {
+  background: #0b1324;
+  text-align: start;
+  font-weight: 700;
+}
+.nice-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.nice-table tbody { position: relative; }
+.nice-table tbody tr:hover { background: #0e1a30; }
+.nice-table td.num { text-align: start; }
+.nice-table td.comments { color: #cbd5e1; }
+/* Row content wrapper: THIS moves with the finger */
+.nice-table td .cell-inner {
+  position: relative;
+  z-index: 1;                     /* sit above the static icons */
+  transition: transform 220ms ease;
+}
+.nice-table tr.swiping td .cell-inner {
+  transition: none;               /* disable animation while finger moves */
+}
+
+/* Hidden by default */
+.nice-table tr::before,
+.nice-table tr::after {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.25rem;
+  line-height: 1;
+  opacity: 0;                     /* hidden by default */
+  transition: opacity 160ms ease; /* fade in/out */
+  pointer-events: none;           /* decorative */
+  z-index: 0;                     /* behind the cell-inner */
+}
+
+/* Left icon (revealed when swiping RIGHT → decrease) */
+.nice-table tr::before {
+  content: "➖";
+  left: 10px;
+  color: #ef4444;                 /* red; adjust to your palette */
+}
+
+/* Right icon (revealed when swiping LEFT → increase) */
+.nice-table tr::after {
+  content: "➕";
+  right: 10px;
+  color: #22c55e;                 /* green */
+}
+
+/* Show the appropriate icon while swiping */
+.nice-table tr.reveal-right::before { opacity: 0.9; }
+.nice-table tr.reveal-left::after   { opacity: 0.9; }
+/* Optional: subtle tint to reinforce meaning */
+.nice-table tr.reveal-left  { box-shadow: inset -120px 0 0 -100px rgba(34,197,94,.15); }
+.nice-table tr.reveal-right { box-shadow: inset 120px  0 0 -100px rgba(239,68,68,.15); }
+
+
+.nice-table tr {
+  position: relative;
+  transition: transform 220ms ease;
+}
+.nice-table tr.swiping {
+  transition: none;
+}
+
+/* Selected row (for actions bar) */
+.nice-table tr.selected {
+  background: #193459;
+}
+
+/* Expanded comments row style */
+.nice-table tr.expanded td {
+  background: #0e1a2f;
+  border-top: 1px solid #24324a;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+/* gesture affordance (subtle) */
+.nice-table tr .gesture-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* actions bar (bottom, when something is selected) */
+.actions-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  z-index: 1000;
+}
+.actions-bar .bar {
+  background: #0b1324;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 12px;
+  display: flex;
+  gap: 8px;
+}
+.actions-bar .bar button {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.2rem;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+.actions-bar .bar button:hover { background: #182338; }
+.actions-bar .bar button.danger:hover { background: #2a1616; color: #fecaca; }
+

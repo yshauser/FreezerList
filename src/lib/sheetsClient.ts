@@ -104,7 +104,7 @@ export async function appendEntry(cfg: SheetsConfig, entry: Omit<Entry, 'id'> & 
 }
 
 export async function updateEntryById(cfg: SheetsConfig, sheetId: number, id: string, entry: Entry) {
-    console.log ('update Entry by ID inputs', {cfg, sheetId,id,entry});
+    console.log ('debug - update Entry by ID inputs', {cfg, sheetId,id,entry});
   // Locate row by scanning column A (id)
   const idsResp = await window.gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: cfg.spreadsheetId,
