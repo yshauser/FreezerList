@@ -46,7 +46,7 @@ export const EntryForm: React.FC<Props> = ({ open, initial, onCancel, onApply })
     if (!open) return;
     if (initial) {
       const { id, ...rest } = initial;
-      setDraft({ ...rest, id });
+      setDraft({ id, ...rest});
       setDateDisplay(formatDateToDDMMYY(rest.date));
     } else {
       const iso = todayISO();

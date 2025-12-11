@@ -35,15 +35,15 @@ async function boot() {
 
     // decide prompt mode: 'consent' for first-ever, '' for silent refreshes
     const hasConsented = localStorage.getItem('gsheets_consent_done') === 'yes';
-    console.log ('consent', {hasConsented})
+    // console.log ('debug - consent', {hasConsented})
     await ensureSignedIn(hasConsented ? '' : 'consent');
 
     // mark consent so next reloads can be silent
     localStorage.setItem('gsheets_consent_done', 'yes');
-
     const sid = await getSheetId(SPREADSHEET_ID, SHEET_NAME);
     setSheetId(sid);
     await reload();
+    // console.log ('debug - sid after reload', {sheetId,sid});
   } catch (e: any) {
     console.error(e);
     setError(toErrorString(e));
@@ -55,6 +55,7 @@ async function boot() {
     try {
       setStatus('טוען נתונים…');
       const es = await readEntries({ spreadsheetId: SPREADSHEET_ID, sheetName: SHEET_NAME });
+      console.log ('debug - full loaded data', {es})
       setEntries(es);
       setStatus(`נטענו ${es.length} שורות.`);
       setError(null);
@@ -77,7 +78,7 @@ async function boot() {
       setStatus('שומר…');
       if (draft.id) {
         // עריכה
-        if (!sheetId) throw new Error('missing sheetId');
+        if (sheetId == null) throw new Error('missing sheetId');
         await updateEntryById({ spreadsheetId: SPREADSHEET_ID, sheetName: SHEET_NAME }, sheetId, draft.id, draft as Entry);
       } else {
         // הוספה
@@ -102,7 +103,8 @@ async function boot() {
   };
 
   const onDelete = async (e: Entry) => {
-    if (!e.id || !sheetId) {
+    console.log ('debug entry', {e})
+    if (!e.id || sheetId == null) {
       alert('Cannot delete: missing id or sheetId.');
       return;
     }
@@ -110,6 +112,7 @@ async function boot() {
     if (!ok) return;
     try {
       setStatus('מוחק…');
+      console.log ('debug - delete inputs', {SPREADSHEET_ID, SHEET_NAME, sheetId, e})
       await deleteEntryById({ spreadsheetId: SPREADSHEET_ID, sheetName: SHEET_NAME }, sheetId, e.id);
       await reload();
     } catch (err: any) {

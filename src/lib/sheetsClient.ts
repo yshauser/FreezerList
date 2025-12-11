@@ -8,6 +8,7 @@ export type SheetsConfig = {
 };
 
 const HEADERS = [
+  'id',
   'product',
   'category',
   'date',
@@ -16,26 +17,38 @@ const HEADERS = [
   'cleanState',
   'skinState',
   'comments',
-  'id',
 ] as const;
-
 type Header = typeof HEADERS[number];
 
-function toBool(s: any): boolean | undefined {
-  if (s === true || s === 'true' || s === '1' || s === 1) return true;
-  if (s === false || s === 'false' || s === '0' || s === 0) return false;
+// Convert Hebrew cell value to boolean:
+// "כן" => true, "לא" => false, otherwise undefined
+function hebToBool(s: any): boolean | undefined {
+  const v = String(s ?? '').trim();
+  if (v === 'כן') return true;
+  if (v === 'לא') return false;
   return undefined;
 }
+
+// Convert boolean to Hebrew cell value:
+// true => "כן", false => "לא"
+function boolToHeb(b: boolean | undefined): string {
+  if (b === true) return 'כן';
+  if (b === false) return 'לא';
+  return ''; // empty if undefined; change to 'לא' if you prefer default false
+}
+
 function toNum(s: any): number {
   const n = Number(String(s ?? '').replace(',', '.'));
   return isFinite(n) ? n : NaN;
 }
 
 export async function getSheetId(spreadsheetId: string, sheetName: string): Promise<number> {
+//  console.log ('debug - in get sheet id', {spreadsheetId, sheetName})
   const resp = await window.gapi.client.sheets.spreadsheets.get({ spreadsheetId });
   const sheets = resp.result?.sheets ?? [];
   const found = sheets.find((s: any) => s.properties?.title === sheetName);
   if (!found) throw new Error(`Sheet "${sheetName}" not found`);
+//   console.log ('debug - properties', {resp,found})
   return found.properties.sheetId;
 }
 
@@ -51,15 +64,15 @@ export async function readEntries(cfg: SheetsConfig): Promise<Entry[]> {
   const rows = values.slice(1); // skip header
   return rows.map((row) => {
     const record: Record<Header, any> = {
-      product: row[0] ?? '',
-      category: (row[1] ?? 'אחר') as Category,
-      date: row[2] ?? '',
-      amount: toNum(row[3]),
-      units: row[4] ?? '',
-      cleanState: toBool(row[5]),
-      skinState: toBool(row[6]),
-      comments: row[7] ?? '',
-      id: row[8] ?? '',
+        id: row[0] ?? '',
+        product: row[1] ?? '',
+        category: (row[2] ?? 'אחר') as Category,
+        date: row[3] ?? '',
+        amount: toNum(row[4]),
+        units: row[5] ?? '',
+        cleanState: hebToBool(row[6]),
+        skinState: hebToBool(row[7]),
+        comments: row[8] ?? '',
     };
     return record as Entry;
   });
@@ -70,15 +83,15 @@ export async function appendEntry(cfg: SheetsConfig, entry: Omit<Entry, 'id'> & 
   const range = `${cfg.sheetName}!A:I`;
   const body = {
     values: [[
+      id,
       entry.product,
       entry.category,
       entry.date ?? '',
       entry.amount ?? '',
       entry.units ?? '',
-      entry.cleanState ? 'true' : 'false',
-      entry.skinState ? 'true' : 'false',
+      boolToHeb(entry.cleanState), 
+      boolToHeb(entry.skinState), 
       entry.comments ?? '',
-      id,
     ]],
   };
   const query = {
@@ -87,15 +100,15 @@ export async function appendEntry(cfg: SheetsConfig, entry: Omit<Entry, 'id'> & 
     valueInputOption: 'USER_ENTERED', // parse like UI input
   };
   await window.gapi.client.sheets.spreadsheets.values.append(query, body);
-  return id;
+  return {id};
 }
 
 export async function updateEntryById(cfg: SheetsConfig, sheetId: number, id: string, entry: Entry) {
     console.log ('update Entry by ID inputs', {cfg, sheetId,id,entry});
-  // Locate row by scanning column I (id)
+  // Locate row by scanning column A (id)
   const idsResp = await window.gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: cfg.spreadsheetId,
-    range: `${cfg.sheetName}!I:I`,
+    range: `${cfg.sheetName}!A:A`,
   });
   const ids: any[][] = idsResp.result?.values ?? [];
   const rowIndex1Based = ids
@@ -109,15 +122,15 @@ export async function updateEntryById(cfg: SheetsConfig, sheetId: number, id: st
     range: a1,
     majorDimension: 'ROWS',
     values: [[
+      id,
       entry.product,
       entry.category,
       entry.date ?? '',
       entry.amount ?? '',
       entry.units ?? '',
-      entry.cleanState ? 'true' : 'false',
-      entry.skinState ? 'true' : 'false',
+      boolToHeb(entry.cleanState),
+      boolToHeb(entry.skinState),
       entry.comments ?? '',
-      id,
     ]],
   };
   await window.gapi.client.sheets.spreadsheets.values.update(
@@ -131,10 +144,11 @@ export async function updateEntryById(cfg: SheetsConfig, sheetId: number, id: st
 }
 
 export async function deleteEntryById(cfg: SheetsConfig, sheetId: number, id: string) {
-  // Find row number (1-based) in column I
+  // Find row number (1-based) in column A
+  console.log ('debug - delete by id inputs', {cfg, sheetId, id })
   const idsResp = await window.gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: cfg.spreadsheetId,
-    range: `${cfg.sheetName}!I:I`,
+    range: `${cfg.sheetName}!A:A`,
   });
   const ids: any[][] = idsResp.result?.values ?? [];
   const rowIndex1Based = ids
