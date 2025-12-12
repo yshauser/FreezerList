@@ -13,7 +13,7 @@ interface Props {
 
 /** Gesture tuning */
 const SWIPE_THRESHOLD = 40;           // px finger travel to count as swipe
-const LONG_PRESS_MS   = 500;          // ms to trigger selection
+// const LONG_PRESS_MS   = 500;          // ms to trigger selection
 const DELTA_INCREASE = 1;
 const DELTA_DECREASE  = 1;            // can be changed if required
 
@@ -77,20 +77,35 @@ type RowProps = {
   headers: string[];
   isSelected: boolean;
   isExpanded: boolean;
-  onToggleSelected: (id: string) => void;
-  onToggleExpanded: (id: string) => void;
+  onRowTapSelect: (id: string, wasSelected: boolean) => void;
+  onToggleExpandedExclusive: (id: string) => void;
   onQuickAdjust: (e: Entry, delta: number) => void;
 };
-const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, onToggleSelected, onToggleExpanded,onQuickAdjust }) => {
+const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, onRowTapSelect, onToggleExpandedExclusive ,onQuickAdjust }) => {
   const touchStartX = useRef<number>(0);
   const lastX = useRef<number>(0);
   const startTime   = useRef<number>(0);
   const moved       = useRef<boolean>(false);
-  const longTimer   = useRef<number | null>(null);
+  const lastToggleRef = useRef<{ id: string; t: number }>({ id: '', t: 0 });
+
+  // const longTimer   = useRef<number | null>(null);
   const [offset, setOffset] = useState(0);   // px, for visible swipe
   const [swiping, setSwiping] = useState(false);
   const [revealDir, setRevealDir] = useState<'left' | 'right' | null>(null);
 
+  function toggleSelectOnce() {
+  if (!row.id) return;
+  const now = Date.now();
+  // Skip if we just toggled this same row very recently (duplicate touch/click)
+  if (lastToggleRef.current.id === row.id && now - lastToggleRef.current.t < 200) return;
+  lastToggleRef.current = { id: row.id, t: now };
+  onRowTapSelect(row.id, isSelected); // your exclusive selection handler
+}
+
+const onMouseUp = () => {
+  // desktop click selection  // desktop click selection
+  toggleSelectOnce();
+};
 
   const onTouchStart = (ev: React.TouchEvent) => {
     const t = ev.touches[0];
@@ -102,9 +117,9 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
     setRevealDir(null);
 
     // schedule long-press
-    longTimer.current = window.setTimeout(() => {
-      if (!moved.current && row.id) onToggleSelected(row.id);
-    }, LONG_PRESS_MS);
+    // longTimer.current = window.setTimeout(() => {
+    //   if (!moved.current && row.id) onToggleSelected(row.id);
+    // }, LONG_PRESS_MS);
   };
 
   const onTouchMove = (ev: React.TouchEvent) => {
@@ -122,26 +137,22 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
     // Reveal icon direction: left (user swiping left) → increase; right → decrease
     setRevealDir(clamped < 0 ? 'left' : (clamped > 0 ? 'right' : null));
 
-    if (longTimer.current) { clearTimeout(longTimer.current); longTimer.current = null; }
+    // if (longTimer.current) { clearTimeout(longTimer.current); longTimer.current = null; }
   };
   const onTouchEnd = () => {
-    if (longTimer.current) { clearTimeout(longTimer.current); longTimer.current = null; }
+    // if (longTimer.current) { clearTimeout(longTimer.current); longTimer.current = null; }
 
     const dx  = lastX.current - touchStartX.current;
     const abs = Math.abs(dx);
 
     // Commit swipe if threshold crossed
-    if (abs >= SWIPE_THRESHOLD) {
-      if (dx < 0) onQuickAdjust(row, +DELTA_INCREASE); // left = increase
-      else        onQuickAdjust(row, -DELTA_DECREASE); // right = decrease
-    } else {
-      // short press: toggle expand OR unselect if selected
-      const dt = Date.now() - startTime.current;
-      if (dt < 300) {
-        if (isSelected && row.id) onToggleSelected(row.id);
-        else if (row.id) onToggleExpanded(row.id);
-      }
-    }
+  if (abs >= SWIPE_THRESHOLD) {
+    if (dx < 0) onQuickAdjust(row, +DELTA_INCREASE);
+    else        onQuickAdjust(row, -DELTA_DECREASE);
+  } else {
+    const dt = Date.now() - startTime.current;
+    if (dt < 300) toggleSelectOnce();  // select/unselect only here on phones
+  }
 
     // animate row back
     setSwiping(false);
@@ -166,6 +177,28 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
     `${revealDir === 'left'  ? 'reveal-left '  : ''}` +
     `${revealDir === 'right' ? 'reveal-right ' : ''}`;
 
+  const renderFirstCell = (firstKey: string) => (
+    <td key={firstKey}>
+      <div className="cell-inner" style={{ transform: `translateX(${offset}px)` }}>
+
+      <button
+        type="button"
+        className="expand-btn"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (row.id) onToggleExpandedExclusive(row.id);
+        }}
+        title={isExpanded ? 'סגור הערות' : 'פתח הערות'}
+      >
+        {isExpanded ? '▾' : '▸'}
+      </button>
+
+        {' '}
+        {displayCell(firstKey)}
+      </div>
+    </td>
+  );
+
   return (
     <>
       <tr
@@ -173,14 +206,28 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onMouseUp={onMouseUp}          // keep desktop selection
+          // onClick={() => { if (row.id) onRowTapSelect(row.id, isSelected); }} // desktop clicks also select
       >
-        {headers.map((h) => (
+       {/* first cell with chevron */}
+        {renderFirstCell(headers[0])}
+
+        {/* rest of the cells */}
+        {headers.slice(1).map((h) => (
           <td key={h} className={h === 'amount' ? 'num' : undefined}>
-            {/* Only cell-inner moves; icons stay static */}
             <div className="cell-inner" style={{ transform: `translateX(${offset}px)` }}>
               {displayCell(h)}
-            </div>          </td>
+            </div>
+          </td>
         ))}
+        {/* {headers.map((h) => (
+          <td key={h} className={h === 'amount' ? 'num' : undefined}>
+            { This row should be commented -> Only cell-inner moves; icons stay static }
+            <div className="cell-inner" style={{ transform: `translateX(${offset}px)` }}>
+              {displayCell(h)}
+            </div>
+            </td>
+        ))} */}
       </tr>
       
       {isExpanded && (
@@ -205,6 +252,27 @@ export const SheetTable: React.FC<Props> = ({ entries, onEdit, onDelete, onQuick
   const [selected, setSelected]   = useState<Set<string>>(new Set());
   const [expanded, setExpanded]   = useState<Set<string>>(new Set());
 
+  // Collapse all expanded comments
+  const collapseAllExpanded = () => setExpanded(new Set());
+
+  // Toggle selection with exclusivity:
+  // - Tap a *different* row -> select only that row & collapse expansions
+  // - Tap the *same* selected row -> unselect it
+  const onRowTapSelect = (id: string, wasSelected: boolean) => {
+    if (wasSelected) {
+      // unselect if already selected
+      setSelected(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    } else {
+      // select only this row and close expansions
+      collapseAllExpanded();
+      setSelected(new Set([id]));
+    }
+  };
+
   const toggleSection = (cat: string) =>
     setCollapsed(s => ({ ...s, [cat]: !(s[cat] ?? false) }));
 
@@ -223,22 +291,9 @@ export const SheetTable: React.FC<Props> = ({ entries, onEdit, onDelete, onQuick
     return s.dir === 'asc' ? sorted : sorted.reverse();
   };
 
-  const toggleSelected = (id: string) => {
-    setSelected(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleExpanded = (id: string) => {
-    setExpanded(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  // Expand comments exclusively: expanding one row collapses all others
+  const toggleExpandedExclusive = (id: string) => {
+    setExpanded(prev => (prev.has(id) ? new Set() : new Set([id])));
   };
 
     // bulk actions: operate on selected ids
@@ -307,8 +362,8 @@ return (
                     headers={headers}
                     isSelected={row.id ? selected.has(row.id) : false}
                     isExpanded={row.id ? expanded.has(row.id) : false}
-                    onToggleSelected={toggleSelected}
-                    onToggleExpanded={toggleExpanded}
+                    onRowTapSelect={onRowTapSelect}
+                    onToggleExpandedExclusive={toggleExpandedExclusive}
                     onQuickAdjust={onQuickAdjust}
                   />
                  ))}

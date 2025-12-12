@@ -124,6 +124,18 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 }
 .calendar-btn:hover { filter: brightness(1.1); }
 
+.expand-btn {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 4px;
+  cursor: pointer;
+}
+.expand-btn:hover { color: #9aa8c5; }
+
+
 select {
   background: #0b1324;
    border: 1px solid var(--border);
