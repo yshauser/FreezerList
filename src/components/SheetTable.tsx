@@ -102,6 +102,7 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
   onRowTapSelect(row.id, isSelected); // your exclusive selection handler
 }
 
+
 const onMouseUp = () => {
   // desktop click selection  // desktop click selection
   toggleSelectOnce();
@@ -267,9 +268,8 @@ export const SheetTable: React.FC<Props> = ({ entries, onEdit, onDelete, onQuick
         return next;
       });
     } else {
-      // select only this row and close expansions
-      collapseAllExpanded();
-      setSelected(new Set([id]));
+      collapseAllExpanded();       // optional if you want single-expand
+      setSelected(new Set([id]));  // select only this row
     }
   };
 
