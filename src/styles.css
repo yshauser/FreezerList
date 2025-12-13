@@ -74,11 +74,38 @@ body {
 /* Modal */
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-  display: grid; place-items: center; z-index: 1000;
+  display: grid; place-items: center; z-index: 1000; padding: 12px;
 }
 .modal {
-  width: 680px; max-width: 95vw; background: var(--panel); border: 1px solid var(--border);
-  border-radius: 12px; padding: 16px;
+    width: 95vw;
+  max-width: 720px;
+  /* Use dynamic viewport height to account for mobile browser chrome */
+  max-height: calc(100dvh - 24px - env(safe-area-inset-bottom, 0px));
+  background: #0b1324;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+/* Scrollable body: form content scrolls; header & footer stay */
+.modal-body {
+  overflow-y: auto;
+  /* leave some internal spacing */
+  padding: 12px;
+}
+/* Sticky footer: stays visible at bottom of modal */
+.modal-actions {
+  position: sticky;        /* sticky within modal column */
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 10px 12px;
+  background: linear-gradient(to top, #0b1324 60%, rgba(11,19,36,0.8) 100%);
+  border-top: 1px solid var(--border);
+  /* Safe-area for iOS */
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 }
 .form-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
@@ -318,3 +345,13 @@ select {
   line-height: 1;
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
+/* Optional: make inputs a bit taller on touch */
+/* @media (pointer: coarse) {
+  .form-grid input,
+  .form-grid select,
+  .form-grid textarea,
+  .btn-primary,
+  .btn-secondary {
+    min-height: 40px;
+  }
+} */
