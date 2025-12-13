@@ -44,7 +44,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
 
   const isMeat = draft.category === 'בשר';
 
-  const next = () => setStep(s => (s < 4 ? ((s + 1) as Step) : s));
+  const next = () => setStep(s => (s < 5 ? ((s + 1) as Step) : s));
   const prev = () => setStep(s => (s > 1 ? ((s - 1) as Step) : s));
 
   // --- Step 1: category selection ---
@@ -125,6 +125,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
 
     // Compute total steps dynamically
   const lastStep: Step = isMeat ? 5 : 4;
+  console.log ('is meat', {isMeat, lastStep, step})
 
   return (
     <div className="modal-backdrop" onClick={onCancel} dir="rtl">

@@ -1,4 +1,8 @@
 
+/* Fill the viewport and make all sizing reliable */
+html, body, #root { height: 100%; }
+* { box-sizing: border-box; }
+
 :root {
   --bg: #0f172a;
   --panel: #111827;
@@ -87,6 +91,7 @@ body {
   color: var(--text);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 /* Scrollable body: form content scrolls; header & footer stay */
 .modal-body {
@@ -110,6 +115,10 @@ body {
 .form-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
 }
+/* Single column on small screens */
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
 .form-grid label { display: grid; gap: 6px; font-size: .9rem; }
 .form-grid .checkbox { align-items: center; grid-auto-flow: column; justify-content: start; gap: 8px; }
 .form-grid .col-span { grid-column: 1 / -1; }
@@ -117,13 +126,25 @@ body {
 .form-grid .actions {
   grid-column: 1 / -1; display: flex; justify-content: end; gap: 8px; margin-top: 4px;
 }
+
 input, textarea, select {
   background: #0b1324; border: 1px solid var(--border); border-radius: 8px; color: var(--text);
   padding: 8px; outline: none;
+  width: 100%;
+  max-width: 100%;
+}
+/* Prevent long text from forcing overflow */
+.form-grid input,
+.form-grid textarea {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;       /* avoid overflow with long words */
+  overflow-wrap: anywhere;
 }
 input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 
 .date-composite {
+  min-width: 0;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
@@ -142,6 +163,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 }
 
 .calendar-btn {
+  flex-shrink: 0;
   border: 1px solid var(--border);
   background: #1f2937;
   color: var(--text);
@@ -298,9 +320,9 @@ select {
 /* Wizard layout */
 .wizard { max-width: 720px; width: 95vw; }
 .wizard-head {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between; padding: 12px;
 }
-.wizard-steps { display: flex; gap: 6px; }
+.wizard-steps { display: flex; gap: 6px; flex-wrap: wrap; overflow: hidden;}
 .wizard-steps span {
   width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
   background: #182338; color: var(--muted); font-weight: 700; border: 1px solid var(--border);
@@ -312,11 +334,11 @@ select {
 
 /* Category grid (step 1) */
 .category-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 10px; margin-top: 8px;
 }
 
 .cat-btn {
-  padding: 12px 10px; border-radius: 10px; border: 1px solid var(--border);
+  min-width: 0; padding: 12px 10px; border-radius: 10px; border: 1px solid var(--border);
   background: #0b1324; color: var(--text); font-size: 1rem;
 }
 .cat-btn.active, .cat-btn:hover { background: #13203b; }
@@ -346,7 +368,7 @@ select {
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 /* Optional: make inputs a bit taller on touch */
-/* @media (pointer: coarse) {
+@media (pointer: coarse) {
   .form-grid input,
   .form-grid select,
   .form-grid textarea,
@@ -354,4 +376,4 @@ select {
   .btn-secondary {
     min-height: 40px;
   }
-} */
+}
