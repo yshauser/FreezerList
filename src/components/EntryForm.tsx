@@ -1,7 +1,7 @@
 
 // src/components/EntryForm.tsx
 import React, { useEffect, useState, useRef } from 'react';
-import type { Entry} from '../types';
+import type { Entry, EntryDraft } from '../types';
 import { CATEGORIES } from '../types';
 import { formatDateToDDMMYY, parseDateFromDDMMYY, todayISO } from '../lib/dateUtils';
 
@@ -12,8 +12,6 @@ import { formatDateToDDMMYY, parseDateFromDDMMYY, todayISO } from '../lib/dateUt
 //   const day = today.getDate().toString().padStart(2, '0');
 //   return `${year}-${month}-${day}`;
 // };
-
-export type EntryDraft = Omit<Entry, 'id'> & { id?: string };
 
 interface Props {
   open: boolean;

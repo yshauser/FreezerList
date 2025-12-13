@@ -1,14 +1,16 @@
 // src/App.tsx
 import { useEffect, useState } from 'react';
 import './styles.css';
-import type { Entry } from './types';
+import type { Entry, EntryDraft } from './types';
 import { toErrorString } from './lib/errors';
+import { VersionBadge } from './components/VersionBadge';
 
 import { initGapiClient, initTokenClient, ensureSignedIn } from './lib/googleAuth'; //signOut
+import { AddProductWizard } from './components/AddProductWizard';
 import { readEntries, appendEntry, updateEntryById, deleteEntryById, getSheetId } from './lib/sheetsClient';
 
 import { SheetTable } from './components/SheetTable';
-import { EntryForm, type EntryDraft } from './components/EntryForm';
+import { EntryForm } from './components/EntryForm';
 
 const SPREADSHEET_ID = '1cATOOjCiKx5VUKsn7CrjY6_-SiCh0RYu_HMJPZ9Lz78';
 const SHEET_NAME = 'list';
@@ -69,7 +71,8 @@ async function boot() {
     boot(); // הפעלה חד־פעמית
   }, []);
 
-  const openAdd = () => { setEditing(undefined); setFormOpen(true); };
+const [addOpen, setAddOpen] = useState(false);
+const openAdd = () => setAddOpen(true);
   const openEdit = (e: Entry) => { setEditing(e); setFormOpen(true); };
 
   const onApply = async (draft: EntryDraft) => {
@@ -100,6 +103,28 @@ async function boot() {
       setStatus('שגיאה בשמירה.');
     }
   };
+
+async function onAddComplete(draft: EntryDraft) {
+  try {
+    setStatus('שומר…');
+    await appendEntry({ spreadsheetId: SPREADSHEET_ID, sheetName: SHEET_NAME }, {
+      product: draft.product,
+      category: draft.category,
+      date: draft.date,
+      amount: draft.amount,
+      units: draft.units,
+      cleanState: draft.cleanState,
+      skinState: draft.skinState,
+      comments: draft.comments,
+    });
+    setAddOpen(false);
+    await reload();
+  } catch (e: any) {
+    console.error(e);
+    setError(e?.result?.error?.message ?? e?.message ?? String(e));
+    setStatus('שגיאה בשמירה.');
+  }
+}
 
   const onDelete = async (e: Entry) => {
     console.log ('debug entry', {e})
@@ -151,6 +176,7 @@ async function boot() {
   };
 
   return (
+    <>
     <main className="container" dir="rtl">
       <header className="app-header">
         <h1>המקפיא שלי</h1>
@@ -168,13 +194,19 @@ async function boot() {
           onQuickAdjust={onQuickAdjust}
         />
       )}
-
+      <AddProductWizard
+        open={addOpen}
+        onCancel={() => setAddOpen(false)}
+        onComplete={onAddComplete}
+      />
       <EntryForm
         open={formOpen}
         initial={editing}
         onCancel={() => setFormOpen(false)}
         onApply={onApply}
-      />
+      />    
     </main>
+        <VersionBadge />
+      </>
   );
 }

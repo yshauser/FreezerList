@@ -7,5 +7,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
-  plugins: [react()],
+  plugins: [react()], 
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version)}
 })
