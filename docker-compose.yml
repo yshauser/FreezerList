@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Frontend: React SPA + nginx reverse proxy
+  frontend:
+    build: .
+    container_name: freezerlist-frontend
+    ports:
+      - "5776:80"  # Expose to host for Cloudflare Tunnel
+    depends_on:
+      - backend
+    networks:
+      - freezerlist
+    restart: unless-stopped
+
+  # Backend: Node.js Express server
+  backend:
+    build: ./server
+    container_name: freezerlist-backend
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - SPREADSHEET_ID=${SPREADSHEET_ID}
+      - SHEET_NAME=${SHEET_NAME}
+      - PORT=3001
+      - NODE_ENV=production
+    networks:
+      - freezerlist
+    restart: unless-stopped
+    # No ports exposed - accessed via internal network only
+
+networks:
+  freezerlist:
+    driver: bridge
