@@ -4,9 +4,11 @@ import './styles.css';
 import type { Entry, EntryDraft } from './types';
 import { toErrorString } from './lib/errors';
 import { VersionBadge } from './components/VersionBadge';
+import { ThemeProvider } from './contexts/ThemeContext'; // Import ThemeProvider
 
 import { initGapiClient, initTokenClient, ensureSignedIn } from './lib/googleAuth'; //signOut
 import { AddProductWizard } from './components/AddProductWizard';
+import { MainMenu } from './components/MainMenu'; // Import MainMenu
 import { readEntries, appendEntry, updateEntryById, deleteEntryById, getSheetId } from './lib/sheetsClient';
 
 import { SheetTable } from './components/SheetTable';
@@ -18,7 +20,7 @@ const SHEET_NAME = 'list';
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID!;
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY!;
 
-export default function App() {
+function AppContent() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [status, setStatus] = useState('טוען…');
   const [error, setError] = useState<string | null>(null);
@@ -178,11 +180,12 @@ async function onAddComplete(draft: EntryDraft) {
 
   return (
     <>
-    <main className="container" dir="rtl">
+    <main className="container">
       <header className="app-header">
         <h1>המקפיא שלי</h1>
         <div className="spacer" />
         <button className="btn-primary" onClick={openAdd}>הוסף מוצר</button>
+        <MainMenu /> {/* Add the MainMenu component here */}
       </header>
 
       {error ? <div className="error">שגיאה: {error}</div> :<div></div> } {/*<div className="status">{status}</div>*/}
@@ -205,9 +208,17 @@ async function onAddComplete(draft: EntryDraft) {
         initial={editing}
         onCancel={() => setFormOpen(false)}
         onApply={onApply}
-      />    
+      />
     </main>
         <VersionBadge />
       </>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }

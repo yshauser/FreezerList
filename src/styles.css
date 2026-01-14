@@ -3,14 +3,38 @@
 html, body, #root { height: 100%; }
 * { box-sizing: border-box; }
 
-:root {
+html { /* Default (Dark Mode) */
   --bg: #0f172a;
   --panel: #111827;
+  --panel-header: #0b1324;
+  --panel-hover: #182338;
+  --panel-alt: #1f2937;
   --muted: #94a3b8;
   --text: #e5e7eb;
   --accent: #22c55e;
+  --accent-text: #00330e;
   --danger: #ef4444;
+  --danger-bg: #2a1616;
+  --danger-text: #fecaca;
   --border: #1f2937;
+  --error-bg: #1b1f2a;
+}
+
+html[data-theme="light"] {
+  --bg: #f1f5f9;
+  --panel: #ffffff;
+  --panel-header: #f8fafc;
+  --panel-hover: #e2e8f0;
+  --panel-alt: #f1f5f9;
+  --muted: #64748b;
+  --text: #0f172a;
+  --accent: #16a34a;
+  --accent-text: #ffffff;
+  --danger: #dc2626;
+  --danger-bg: #fee2e2;
+  --danger-text: #991b1b;
+  --border: #cbd5e1;
+  --error-bg: #fef2f2;
 }
 
 html, body, #root {
@@ -39,14 +63,14 @@ body {
 .spacer { flex: 1; }
 
 .status { color: var(--muted); margin-bottom: 8px; }
-.error { background: #1b1f2a; border: 1px solid var(--danger); padding: 8px; border-radius: 8px; color: #fecaca; }
+.error { background: var(--error-bg); border: 1px solid var(--danger); padding: 8px; border-radius: 8px; color: var(--danger-text); }
 
 .btn-primary, .btn-secondary {
   padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
   cursor: pointer; font-weight: 600;
 }
-.btn-primary { background: var(--accent); color: #00330e; border-color: #16a34a; }
-.btn-secondary { background: #1f2937; color: var(--text); }
+.btn-primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.btn-secondary { background: var(--panel-alt); color: var(--text); }
 .btn-primary:hover { filter: brightness(1.05); }
 .btn-secondary:hover { filter: brightness(1.1); }
 
@@ -54,7 +78,7 @@ body {
 .category { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
 .category-header {
   display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer;
-  background: #0b1324; border-bottom: 1px solid var(--border);
+  background: var(--panel-header); border-bottom: 1px solid var(--border);
 }
 .category-header h3 { margin: 0; font-size: 1.1rem; }
 .category-header small { color: var(--muted); }
@@ -69,8 +93,8 @@ body {
   border: none; background: transparent; cursor: pointer; font-size: 1rem;
   padding: 4px; margin: 0 2px; border-radius: 6px;
 }
-.icon-btn:hover { background: #182338; }
-.icon-btn.danger:hover { background: #2a1616; color: #fecaca; }
+.icon-btn:hover { background: var(--panel-hover); }
+.icon-btn.danger:hover { background: var(--danger-bg); color: var(--danger-text); }
 .actions { white-space: nowrap; }
 
 .chevron { font-size: 1rem; color: var(--muted); }
@@ -85,7 +109,7 @@ body {
   max-width: 720px;
   /* Use dynamic viewport height to account for mobile browser chrome */
   max-height: calc(100dvh - 24px - env(safe-area-inset-bottom, 0px));
-  background: #0b1324;
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
@@ -107,7 +131,7 @@ body {
   gap: 8px;
   justify-content: flex-end;
   padding: 10px 12px;
-  background: linear-gradient(to top, #0b1324 60%, rgba(11,19,36,0.8) 100%);
+  background: var(--panel);
   border-top: 1px solid var(--border);
   /* Safe-area for iOS */
   padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
@@ -128,7 +152,7 @@ body {
 }
 
 input, textarea, select {
-  background: #0b1324; border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+  background: var(--panel-header); border: 1px solid var(--border); border-radius: 8px; color: var(--text);
   padding: 8px; outline: none;
   width: 100%;
   max-width: 100%;
@@ -165,7 +189,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 .calendar-btn {
   flex-shrink: 0;
   border: 1px solid var(--border);
-  background: #1f2937;
+  background: var(--panel-alt);
   color: var(--text);
   padding: 8px 10px;
   border-radius: 8px;
@@ -186,7 +210,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 
 
 select {
-  background: #0b1324;
+  background: var(--panel-header);
    border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
@@ -202,7 +226,7 @@ select {
   vertical-align: top;
 }
 .nice-table thead th {
-  background: #0b1324;
+  background: var(--panel-header);
   text-align: start;
   font-weight: 700;
 }
@@ -211,7 +235,7 @@ select {
   user-select: none;
 }
 .nice-table tbody { position: relative; }
-.nice-table tbody tr:hover { background: #0e1a30; }
+.nice-table tbody tr:hover { background: var(--panel-hover); }
 .nice-table td.num { text-align: start; }
 .nice-table td.comments { color: #cbd5e1; }
 /* Row content wrapper: THIS moves with the finger */
@@ -298,7 +322,7 @@ select {
   z-index: 1000;
 }
 .actions-bar .bar {
-  background: #0b1324;
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 8px 12px;
@@ -313,8 +337,8 @@ select {
   padding: 6px 8px;
   border-radius: 8px;
 }
-.actions-bar .bar button:hover { background: #182338; }
-.actions-bar .bar button.danger:hover { background: #2a1616; color: #fecaca; }
+.actions-bar .bar button:hover { background: var(--panel-hover); }
+.actions-bar .bar button.danger:hover { background: var(--danger-bg); color: var(--danger-text); }
 
 
 /* Wizard layout */
@@ -325,9 +349,9 @@ select {
 .wizard-steps { display: flex; gap: 6px; flex-wrap: wrap; overflow: hidden;}
 .wizard-steps span {
   width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
-  background: #182338; color: var(--muted); font-weight: 700; border: 1px solid var(--border);
+  background: var(--panel-hover); color: var(--muted); font-weight: 700; border: 1px solid var(--border);
 }
-.wizard-steps span.done { background: #0e1a2f; color: var(--text); }
+.wizard-steps span.done { background: var(--panel-header); color: var(--text); }
 
 .wizard-body { margin: 8px 0 12px; }
 .wizard-foot { display: flex; justify-content: end; gap: 8px; }
@@ -339,14 +363,14 @@ select {
 
 .cat-btn {
   min-width: 0; padding: 12px 10px; border-radius: 10px; border: 1px solid var(--border);
-  background: #0b1324; color: var(--text); font-size: 1rem;
+  background: var(--panel-header); color: var(--text); font-size: 1rem;
 }
-.cat-btn.active, .cat-btn:hover { background: #13203b; }
+.cat-btn.active, .cat-btn:hover { background: var(--panel-hover); }
 
 /* Review box (last step) */
 .review {
   display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-  border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: #0b1324;
+  border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: var(--panel-header);
 }
 
 /* Reuse your date-composite, inputs, buttons styles */
@@ -358,7 +382,7 @@ select {
   inset-inline-start: 8px;     /* left in RTL & LTR */
   z-index: 1000;
 
-  background: #0b1324;
+  background: var(--panel);
   border: 1px solid var(--border);
   color: var(--muted);
   border-radius: 999px;
@@ -366,6 +390,55 @@ select {
   font-size: 0.9rem;
   line-height: 1;
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* MainMenu styles */
+.main-menu {
+  position: relative;
+  z-index: 1001;
+}
+
+.menu-button {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.menu-button:hover {
+  filter: brightness(1.1);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+  z-index: 1002;
+  padding: 8px 0;
+}
+
+.menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.menu-dropdown button:hover {
+  background: var(--bg);
 }
 /* Optional: make inputs a bit taller on touch */
 @media (pointer: coarse) {
