@@ -256,8 +256,8 @@ select {
 .nice-table tr.reveal-right::before { opacity: 0.9; }
 .nice-table tr.reveal-left::after   { opacity: 0.9; }
 /* Optional: subtle tint to reinforce meaning */
-.nice-table tr.reveal-left  { box-shadow: inset -120px 0 0 -100px rgba(34,197,94,.15); }
-.nice-table tr.reveal-right { box-shadow: inset 120px  0 0 -100px rgba(239,68,68,.15); }
+.nice-table tr.reveal-left  { box-shadow: inset 0 0 0 9999px rgba(34,197,94,.15); }
+.nice-table tr.reveal-right { box-shadow: inset 0 0 0 9999px rgba(239,68,68,.15); }
 
 
 .nice-table tr {

@@ -12,8 +12,9 @@ interface Props {
 }
 
 /** Gesture tuning */
-const SWIPE_THRESHOLD = 40;           // px finger travel to count as swipe
-// const LONG_PRESS_MS   = 500;          // ms to trigger selection
+const SWIPE_THRESHOLD = 60;           // px finger travel to count as swipe
+const REVEAL_FACTOR   = 3;        // visual reveal length relative to threshold
+const REVEAL_MAX      = SWIPE_THRESHOLD * REVEAL_FACTOR;  // e.g., 60px
 const DELTA_INCREASE = 1;
 const DELTA_DECREASE  = 1;            // can be changed if required
 
@@ -87,7 +88,7 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
   const startTime   = useRef<number>(0);
   const moved       = useRef<boolean>(false);
   const lastToggleRef = useRef<{ id: string; t: number }>({ id: '', t: 0 });
-
+  const isMeat = row.category === 'בשר';
   // const longTimer   = useRef<number | null>(null);
   const [offset, setOffset] = useState(0);   // px, for visible swipe
   const [swiping, setSwiping] = useState(false);
@@ -114,7 +115,7 @@ const onMouseUp = () => {
     lastX.current = t.clientX;
     startTime.current   = Date.now();
     moved.current       = false;
-    setSwiping(true);
+    setSwiping(!isMeat);
     setRevealDir(null);
 
     // schedule long-press
@@ -130,9 +131,16 @@ const onMouseUp = () => {
     const dxAbs = Math.abs(t.clientX - touchStartX.current);
     if (dxAbs > 6) moved.current = true;
 
+    if (isMeat) {
+      // Meat: disable swipe visuals and translation
+      setOffset(0);
+      setRevealDir(null);
+      return;
+    }
+
     // show row displacement; clamp to [-60, +60]
     const dx = t.clientX - touchStartX.current;
-    const clamped = Math.max(-60, Math.min(60, dx));
+    const clamped = Math.max(-REVEAL_MAX, Math.min(REVEAL_MAX, dx));
     setOffset(clamped);
 
     // Reveal icon direction: left (user swiping left) → increase; right → decrease
@@ -147,7 +155,7 @@ const onMouseUp = () => {
     const abs = Math.abs(dx);
 
     // Commit swipe if threshold crossed
-  if (abs >= SWIPE_THRESHOLD) {
+  if (!isMeat && abs >= SWIPE_THRESHOLD) {
     if (dx < 0) onQuickAdjust(row, +DELTA_INCREASE);
     else        onQuickAdjust(row, -DELTA_DECREASE);
   } else {
@@ -175,13 +183,14 @@ const onMouseUp = () => {
   const rowClass =
     `${isSelected ? 'selected ' : ''}` +
     `${swiping ? 'swiping ' : ''}` +
-    `${revealDir === 'left'  ? 'reveal-left '  : ''}` +
-    `${revealDir === 'right' ? 'reveal-right ' : ''}`;
+    `${!isMeat && revealDir === 'left'  ? 'reveal-left '  : ''}` +
+    `${!isMeat && revealDir === 'right' ? 'reveal-right ' : ''}`;
 
   const renderFirstCell = (firstKey: string) => (
     <td key={firstKey}>
-      <div className="cell-inner" style={{ transform: `translateX(${offset}px)` }}>
-
+      <div className="cell-inner" style={{ transform: `translateX(${isMeat ? 0 : offset}px)` }}>
+      {/* show the expand button only for rows with comments */}
+      {row.comments?.trim() &&
       <button
         type="button"
         className="expand-btn"
@@ -193,6 +202,7 @@ const onMouseUp = () => {
       >
         {isExpanded ? '▾' : '▸'}
       </button>
+      }
 
         {' '}
         {displayCell(firstKey)}
@@ -208,7 +218,6 @@ const onMouseUp = () => {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         onMouseUp={onMouseUp}          // keep desktop selection
-          // onClick={() => { if (row.id) onRowTapSelect(row.id, isSelected); }} // desktop clicks also select
       >
        {/* first cell with chevron */}
         {renderFirstCell(headers[0])}
@@ -216,19 +225,11 @@ const onMouseUp = () => {
         {/* rest of the cells */}
         {headers.slice(1).map((h) => (
           <td key={h} className={h === 'amount' ? 'num' : undefined}>
-            <div className="cell-inner" style={{ transform: `translateX(${offset}px)` }}>
+            <div className="cell-inner" style={{ transform: `translateX(${isMeat ? 0 : offset}px)` }}>
               {displayCell(h)}
             </div>
           </td>
         ))}
-        {/* {headers.map((h) => (
-          <td key={h} className={h === 'amount' ? 'num' : undefined}>
-            { This row should be commented -> Only cell-inner moves; icons stay static }
-            <div className="cell-inner" style={{ transform: `translateX(${offset}px)` }}>
-              {displayCell(h)}
-            </div>
-            </td>
-        ))} */}
       </tr>
       
       {isExpanded && (
@@ -245,7 +246,14 @@ const onMouseUp = () => {
 
 export const SheetTable: React.FC<Props> = ({ entries, onEdit, onDelete, onQuickAdjust }) => {
   const grouped = useMemo(() => groupByCategory(entries), [entries]);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});    
+  // Initialize all categories as collapsed by default
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
+    const initialCollapsed: Record<string, boolean> = {};
+    Object.keys(grouped).forEach(category => {
+      initialCollapsed[category] = true;
+    });
+    return initialCollapsed;
+  });
   const [sortState, setSortState] = useState<Record<string, { key: SortKey; dir: SortDir }>>({
     'בשר': { key: 'product', dir: 'desc' },
     // add others if you want defaults

@@ -65,6 +65,7 @@ async function boot() {
       setError(toErrorString(e));
       setStatus('נכשלה טעינת הנתונים.');
     }
+    console.log ('Loading Status', status)
   }
 
   useEffect(() => {
@@ -184,7 +185,7 @@ async function onAddComplete(draft: EntryDraft) {
         <button className="btn-primary" onClick={openAdd}>הוסף מוצר</button>
       </header>
 
-      {error ? <div className="error">שגיאה: {error}</div> : <div className="status">{status}</div>}
+      {error ? <div className="error">שגיאה: {error}</div> :<div></div> } {/*<div className="status">{status}</div>*/}
 
       {entries.length > 0 && (
         <SheetTable
