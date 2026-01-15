@@ -160,7 +160,11 @@ export const EntryForm: React.FC<Props> = ({ open, initial, onCancel, onApply })
 
 					<label>
 						כמות
-						<input name="amount" type="number" step="0.01" value={isNaN(draft.amount) ? '' : draft.amount} onChange={onChange} />
+						<input name="amount" type="number" step="0.01" 
+						value={isNaN(draft.amount) ? '' : draft.amount} 
+						onChange={onChange} 
+  						onFocus={(e) => e.target.select()}
+						/>
 					</label>
 					<label>
 						יחידות

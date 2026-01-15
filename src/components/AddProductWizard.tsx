@@ -1,6 +1,6 @@
 // src/components/AddProductWizard.tsx
 import React, { useEffect, useState, useRef } from 'react';
-import type { EntryDraft } from '../types';
+import { DEFAULT_UNITS, type EntryDraft } from '../types';
 import { CATEGORIES, PRODUCTS_BY_CATEGORY, defaultAmountFor, defaultUnitsFor } from '../types';
 import { formatDateToDDMMYY, parseDateFromDDMMYY, todayISO } from '../lib/dateUtils';
 
@@ -242,6 +242,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
                   step="1"
                   value={isNaN(draft.amount) ? '' : draft.amount}
                   onChange={onCoreChange}
+                  onFocus={(e) => e.target.select()}
                   placeholder="כמות"
                 />
               </label>
@@ -252,8 +253,18 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
                   name="units"
                   value={draft.units}
                   onChange={onCoreChange}
+                  onFocus={(e) => e.target.select()}
                   placeholder="יחידות (למשל: ק״ג, יח׳)"
+                  list = "units-list"
+                  autoComplete='off'
+                  inputMode='text'
+                  spellCheck='false'
                 />
+                <datalist id="units-list">
+                  {Object.values(DEFAULT_UNITS).map(unit => (
+                    <option key={unit} value={unit} />
+                  ))}
+                </datalist>
               </label>
             </section>
           )}

@@ -52,6 +52,15 @@ const PRODUCT_UNITS: Record<string, string> = {
   'קוביות בקר': 'ק"ג',
   'פילה עוף': 'ק"ג',
 };
+
+export const DEFAULT_UNITS = [
+  'ק"ג',
+  'יחידות',
+  'שקיות',
+  'קופסאות',
+] as const; //prevents from adding values in run-time
+
+
 export function defaultUnitsFor(category: Category, product: string): string {
   // explicit by product wins
   if (product in PRODUCT_UNITS) return PRODUCT_UNITS[product];
