@@ -294,13 +294,14 @@ select {
 
 /* Selected row (for actions bar) */
 .nice-table tr.selected {
-  background: #193459;
+  background: var(--panel-hover);
+  border: 1px solid var(--accent);
 }
 
 /* Expanded comments row style */
 .nice-table tr.expanded td {
-  background: #0e1a2f;
-  border-top: 1px solid #24324a;
+  background: var(--panel-header);
+  border-top: 1px solid var(--border);
   font-size: 0.95rem;
   color: var(--text);
 }
