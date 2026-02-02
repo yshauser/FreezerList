@@ -4,7 +4,8 @@ import './styles.css';
 import type { Entry, EntryDraft } from './types';
 import { toErrorString } from './lib/errors';
 import { VersionBadge } from './components/VersionBadge';
-import { ThemeProvider } from './contexts/ThemeContext'; // Import ThemeProvider
+import { ThemeProvider } from './contexts/ThemeContext';
+import { VibrationProvider } from './contexts/VibrationContext'; // Import ThemeProvider
 
 import { initGapiClient, initTokenClient, ensureSignedIn } from './lib/googleAuth'; //signOut
 import { AddProductWizard } from './components/AddProductWizard';
@@ -218,7 +219,9 @@ async function onAddComplete(draft: EntryDraft) {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <VibrationProvider>
+        <AppContent />
+      </VibrationProvider>
     </ThemeProvider>
   );
 }

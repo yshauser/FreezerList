@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useVibration } from '../contexts/VibrationContext';
 
 export const MainMenu: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const { vibrationEnabled, toggleVibration } = useVibration();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleToggle = () => {
+  const handleThemeToggle = () => {
     toggleTheme();
-    setIsOpen(false); // Close menu after selection
+    setIsOpen(false);
   };
-  console.log ('debug - in mainmenu', {theme})
+
+  const handleVibrationToggle = () => {
+    toggleVibration();
+    setIsOpen(false);
+  };
 
   return (
     <div className="main-menu">
@@ -18,9 +24,11 @@ export const MainMenu: React.FC = () => {
       </button>
       {isOpen && (
         <div className="menu-dropdown">
-          <button onClick={handleToggle}>
-            {/* Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode */}
+          <button onClick={handleThemeToggle}>
             {theme === 'dark' ? '🔆': '🌙'} עבור למראה { theme === 'dark' ? 'בהיר': 'כהה'}
+          </button>
+          <button onClick={handleVibrationToggle}>
+            {vibrationEnabled ? '📳' : '🔕'} רטט {vibrationEnabled ? 'פעיל' : 'כבוי'}
           </button>
         </div>
       )}

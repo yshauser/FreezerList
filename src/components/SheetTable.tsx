@@ -3,6 +3,8 @@ import React, {useMemo, useState, useRef} from 'react';
 import type { Entry } from '../types';
 import { groupByCategory  } from '../lib/fetchSheet';
 import { formatDateToDDMMYY } from '../lib/dateUtils';
+import { useVibration } from '../contexts/VibrationContext';
+import { vibrateShort } from '../lib/vibration';
 
 interface Props {
   entries: Entry[];
@@ -83,6 +85,7 @@ type RowProps = {
   onQuickAdjust: (e: Entry, delta: number) => void;
 };
 const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, onRowTapSelect, onToggleExpandedExclusive ,onQuickAdjust }) => {
+  const { vibrationEnabled } = useVibration();
   const touchStartX = useRef<number>(0);
   const lastX = useRef<number>(0);
   const startTime   = useRef<number>(0);
@@ -156,6 +159,7 @@ const onMouseUp = () => {
 
     // Commit swipe if threshold crossed
   if (!isMeat && abs >= SWIPE_THRESHOLD) {
+    if (vibrationEnabled) vibrateShort();
     if (dx < 0) onQuickAdjust(row, +DELTA_INCREASE);
     else        onQuickAdjust(row, -DELTA_DECREASE);
   } else {
