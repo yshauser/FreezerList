@@ -1,6 +1,6 @@
 // src/components/AddProductWizard.tsx
 import React, { useEffect, useState, useRef } from 'react';
-import { DEFAULT_UNITS, type EntryDraft } from '../types';
+import { DEFAULT_UNITS, UNITS_FRACTIONS, type EntryDraft } from '../types';
 import { CATEGORIES, PRODUCTS_BY_CATEGORY, defaultAmountFor, defaultUnitsFor } from '../types';
 import { formatDateToDDMMYY, parseDateFromDDMMYY, todayISO } from '../lib/dateUtils';
 
@@ -43,6 +43,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
   if (!open) return null;
 
   const isMeat = draft.category === 'בשר';
+  const isLegume = draft.category === 'קטניות';
 
   const next = () => setStep(s => (s < 5 ? ((s + 1) as Step) : s));
   const prev = () => setStep(s => (s > 1 ? ((s - 1) as Step) : s));
@@ -244,7 +245,18 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
                   onChange={onCoreChange}
                   onFocus={(e) => e.target.select()}
                   placeholder="כמות"
+                  list = "fractions-list"
+                  autoComplete='off'
+                  // inputMode='text'
+                  // spellCheck='false'
                 />
+                {isLegume &&(
+                <datalist id="fractions-list">
+                  {Object.values(UNITS_FRACTIONS).map(fraction => (
+                    <option key={fraction} value={fraction} />
+                  ))}
+                </datalist>
+                )}
               </label>
 
               <label>

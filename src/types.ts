@@ -1,12 +1,13 @@
 
-export type Category = 'בשר' | 'בצק' | 'טבעול' | 'אוכל מוכן' | 'דגים' | 'עוגות' | 'אחר';
-export const CATEGORIES: Category[] = ['בשר', 'בצק', 'טבעול', 'אוכל מוכן', 'דגים', 'עוגות', 'אחר'];
+export type Category = 'בשר' | 'בצק' | 'טבעול' | 'אוכל מוכן' | 'דגים' | 'עוגות' | 'קטניות' | 'אחר';
+export const CATEGORIES: Category[] = ['בשר', 'בצק', 'טבעול', 'אוכל מוכן', 'דגים', 'עוגות', 'קטניות', 'אחר'];
 
 export type CategoryCake = 'מיץ' | 'תמרים' | 'נוטלה אגוזים' | 'כושי'  | 'אחר';
 export type CategoryDough = 'מתוק פריך' | 'שמרים עלים' | 'פילו' | 'אחר';
 export type CategoryTivol = 'נקניקיות' | 'נאגטס ספייסי' | 'נאגטס רגיל' | 'חטיפי תירס' | 'שניצל' | 'אחר';
 export type CategoryFish = 'סלמון' | 'אמנון' | 'לברק' | 'גפילטע פיש' | 'אחר';
 export type CategoryMeat = 'כרעיים עוף'| 'כתף בקר' | 'פרגיות' | 'קוביות בקר' | 'פילה עוף' | 'בקר טחון' | 'אחר';
+export type CategoryLegumes = 'חומוס' | 'עדשים שחורות' | 'עדשים כתומות' | 'עדשים אדומות' | 'שעועית אדומה' | 'שעועית בובס' | 'גריסים' | 'חיטה' | 'אחר';
 
 // Strongly-typed arrays for wizard buttons
 export const CATEGORY_CAKE_LIST: CategoryCake[] = ['מיץ', 'תמרים', 'נוטלה אגוזים', 'כושי', 'אחר'];
@@ -15,6 +16,7 @@ export const CATEGORY_TIVOL_LIST: CategoryTivol[] = ['נקניקיות', 'נאג
 export const CATEGORY_FISH_LIST: CategoryFish[] = ['סלמון', 'אמנון', 'לברק', 'גפילטע פיש', 'אחר'];
 export const CATEGORY_MEAT_LIST: CategoryMeat[] = ['כרעיים עוף', 'כתף בקר', 'פרגיות', 'קוביות בקר', 'פילה עוף', 'בקר טחון', 'אחר'];
 export const CATEGORY_READY_LIST: CategoryMeat[] = ['אחר'];
+export const CATEGORY_LEGUMES_LIST: CategoryLegumes[] = ['חומוס', 'עדשים שחורות', 'עדשים כתומות', 'עדשים אדומות', 'שעועית אדומה', 'שעועית בובס', 'גריסים', 'חיטה', 'אחר'];
 
 export const PRODUCTS_BY_CATEGORY: Record<Category, string[]> = {
   'עוגות': CATEGORY_CAKE_LIST,
@@ -23,6 +25,7 @@ export const PRODUCTS_BY_CATEGORY: Record<Category, string[]> = {
   'דגים': CATEGORY_FISH_LIST,
   'בשר': CATEGORY_MEAT_LIST,
   'אוכל מוכן': CATEGORY_READY_LIST,
+  'קטניות': CATEGORY_LEGUMES_LIST,
   'אחר': ['אחר'],
 };
 export function defaultAmountFor(category: Category, product: string): number | undefined {
@@ -35,6 +38,7 @@ const CATEGORY_FALLBACK_UNITS: Partial<Record<Category, string>> = {
   'טבעול': 'שקית',
   'דגים': 'ק"ג',  // typical fish default
   'בשר': 'ק"ג',   // typical meat default
+  'קטניות': 'שקית',
   'אחר': '',
 };
 // Explicit units per product (overrides category fallback)
@@ -60,6 +64,13 @@ export const DEFAULT_UNITS = [
   'קופסאות',
 ] as const; //prevents from adding values in run-time
 
+export const UNITS_FRACTIONS = [
+  '0.25',
+  '0.5',
+  '0.75',
+  '0.33',
+  '0.66',
+] as const; //prevents from adding values in run-time
 
 export function defaultUnitsFor(category: Category, product: string): string {
   // explicit by product wins

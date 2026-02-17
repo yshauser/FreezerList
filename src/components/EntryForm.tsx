@@ -2,7 +2,7 @@
 // src/components/EntryForm.tsx
 import React, { useEffect, useState, useRef } from 'react';
 import type { Entry, EntryDraft } from '../types';
-import { CATEGORIES } from '../types';
+import { CATEGORIES, UNITS_FRACTIONS } from '../types';
 import { formatDateToDDMMYY, parseDateFromDDMMYY, todayISO } from '../lib/dateUtils';
 
 // const getTodayDateFormatted = () => {
@@ -160,11 +160,31 @@ export const EntryForm: React.FC<Props> = ({ open, initial, onCancel, onApply })
 
 					<label>
 						כמות
-						<input name="amount" type="number" step="0.01" 
-						value={isNaN(draft.amount) ? '' : draft.amount} 
-						onChange={onChange} 
-  						onFocus={(e) => e.target.select()}
-						/>
+						{draft.category === 'קטניות' ? (
+							<>
+								<input 
+									name="amount" 
+									type="number" 
+									step="0.25" 
+									list="fractions-list"
+									value={isNaN(draft.amount) ? '' : draft.amount} 
+									onChange={onChange} 
+									onFocus={(e) => e.target.select()}
+								/>
+								<datalist id="fractions-list">
+									{UNITS_FRACTIONS.map(fraction => (
+										<option key={fraction} value={fraction} />
+									))}
+									<option value={1} />
+								</datalist>
+							</>
+						) : (
+							<input name="amount" type="number" step="1" 
+							value={isNaN(draft.amount) ? '' : draft.amount} 
+							onChange={onChange} 
+ 							onFocus={(e) => e.target.select()}
+							/>
+						)}
 					</label>
 					<label>
 						יחידות

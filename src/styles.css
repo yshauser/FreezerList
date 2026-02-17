@@ -105,7 +105,7 @@ body {
   display: grid; place-items: center; z-index: 1000; padding: 12px;
 }
 .modal {
-    width: 95vw;
+  width: 95vw;
   max-width: 720px;
   /* Use dynamic viewport height to account for mobile browser chrome */
   max-height: calc(100dvh - 24px - env(safe-area-inset-bottom, 0px));
@@ -135,6 +135,41 @@ body {
   border-top: 1px solid var(--border);
   /* Safe-area for iOS */
   padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Confirmation modal - smaller and centered text */
+.confirmation-modal {
+  width: 60vw !important;
+  max-width: 360px !important;
+/* text-align: end; */
+  padding: 20px;
+  max-height: none !important;
+
+  /* Use dynamic viewport height to account for mobile browser chrome */
+  max-height: calc(100dvh - 24px - env(safe-area-inset-bottom, 0px));
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.confirmation-modal h3 {
+  text-align: start;
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+}
+.confirmation-modal p {
+  text-align: center;
+  margin: 0 0 20px 0;
+  font-size: 1rem;
+}
+.confirmation-modal .modal-actions {
+  border-top: none;
+  padding: 0;
+  justify-content: space-evenly;
+  position: static;
 }
 .form-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;

@@ -96,6 +96,7 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
   const [offset, setOffset] = useState(0);   // px, for visible swipe
   const [swiping, setSwiping] = useState(false);
   const [revealDir, setRevealDir] = useState<'left' | 'right' | null>(null);
+  const [pendingDelta, setPendingDelta] = useState<number | null>(null);
 
   function toggleSelectOnce() {
   if (!row.id) return;
@@ -106,11 +107,10 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
   onRowTapSelect(row.id, isSelected); // your exclusive selection handler
 }
 
-
-const onMouseUp = () => {
-  // desktop click selection  // desktop click selection
-  toggleSelectOnce();
-};
+  const onMouseUp = () => {
+    // desktop click selection  // desktop click selection
+    toggleSelectOnce();
+  };
 
   const onTouchStart = (ev: React.TouchEvent) => {
     const t = ev.touches[0];
@@ -160,8 +160,8 @@ const onMouseUp = () => {
     // Commit swipe if threshold crossed
   if (!isMeat && abs >= SWIPE_THRESHOLD) {
     if (vibrationEnabled) vibrateShort();
-    if (dx < 0) onQuickAdjust(row, +DELTA_INCREASE);
-    else        onQuickAdjust(row, -DELTA_DECREASE);
+    const delta = dx < 0 ? +DELTA_INCREASE : -DELTA_DECREASE;
+    setPendingDelta(delta);
   } else {
     const dt = Date.now() - startTime.current;
     if (dt < 300) toggleSelectOnce();  // select/unselect only here on phones
@@ -171,6 +171,17 @@ const onMouseUp = () => {
     setSwiping(false);
     setOffset(0);
     setRevealDir(null);
+  };
+
+  const confirmSwipe = () => {
+    if (pendingDelta !== null) {
+      onQuickAdjust(row, pendingDelta);
+      setPendingDelta(null);
+    }
+  };
+
+  const cancelSwipe = () => {
+    setPendingDelta(null);
   };
 
   const displayCell = (key: string) => {
@@ -242,6 +253,19 @@ const onMouseUp = () => {
             {row.comments?.trim() ? row.comments : '—'}
           </td>
         </tr>
+      )}
+
+      {pendingDelta !== null && (
+        <div className="modal-backdrop" onClick={cancelSwipe}>
+          <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>אישור שינוי</h3>
+            <p>{pendingDelta > 0 ? 'להגדיל ב-' : 'להקטין ב-'}{Math.abs(pendingDelta)}?</p>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={cancelSwipe}>ביטול</button>
+              <button className="btn-primary" onClick={confirmSwipe}>אישור</button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
