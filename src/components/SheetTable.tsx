@@ -1,5 +1,6 @@
 // src/components/SheetTable.tsx
-import React, {useMemo, useState, useRef} from 'react';
+import React, {useMemo, useState, useRef, useEffect} from 'react';
+import { MobileCardView } from './MobileCardView';
 import type { Entry } from '../types';
 import { groupByCategory  } from '../lib/fetchSheet';
 import { formatDateToDDMMYY } from '../lib/dateUtils';
@@ -272,7 +273,27 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
 };
 
 
-export const SheetTable: React.FC<Props> = ({ entries, onEdit, onDelete, onQuickAdjust }) => {
+// Hook to detect mobile screen size
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)');
+    const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+      return () => mediaQuery.removeListener(handleChange);
+    }
+  }, []);
+
+  return isMobile;
+}
+
+const SheetTableDesktop: React.FC<Props> = ({ entries, onEdit, onDelete, onQuickAdjust }) => {
   const grouped = useMemo(() => groupByCategory(entries), [entries]);
   // Initialize all categories as collapsed by default
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
@@ -424,4 +445,15 @@ return (
 
     </div>
   );
-}
+};
+
+// Responsive wrapper component
+export const SheetTable: React.FC<Props> = (props) => {
+  const isMobile = useIsMobile();
+  
+  if (isMobile) {
+    return <MobileCardView {...props} />;
+  }
+  
+  return <SheetTableDesktop {...props} />;
+};

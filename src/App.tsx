@@ -14,6 +14,7 @@ import { readEntries, appendEntry, updateEntryById, deleteEntryById, getSheetId 
 
 import { SheetTable } from './components/SheetTable';
 import { EntryForm } from './components/EntryForm';
+import { formatDateToDDMMYY } from './lib/dateUtils';
 
 const SPREADSHEET_ID = '1cATOOjCiKx5VUKsn7CrjY6_-SiCh0RYu_HMJPZ9Lz78';
 const SHEET_NAME = 'list';
@@ -136,7 +137,9 @@ async function onAddComplete(draft: EntryDraft) {
       alert('Cannot delete: missing id or sheetId.');
       return;
     }
-    const ok = confirm(`למחוק את "${e.product}"?`);
+    const dateStr = e.date ? formatDateToDDMMYY(e.date) : '';
+    const detailsStr = `${e.amount} ${e.units}${dateStr ? ' | ' + dateStr : ''}`;
+    const ok = confirm(`למחוק את "${e.product}"?\n${detailsStr}`);
     if (!ok) return;
     try {
       setStatus('מוחק…');
