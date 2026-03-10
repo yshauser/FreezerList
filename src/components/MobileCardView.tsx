@@ -233,6 +233,14 @@ export const MobileCardView: React.FC<Props> = ({ entries, onEdit, onDelete, onQ
     setExpanded((prev) => (prev.has(id) ? new Set() : new Set([id])));
   };
 
+  const sortByProductName = (rows: Entry[]) => {
+    return [...rows].sort((a, b) => {
+      const av = (a.product ?? '').toString();
+      const bv = (b.product ?? '').toString();
+      return av.localeCompare(bv, 'he');
+    });
+  };
+
   const applyDeltaToSelected = (delta: number) => {
     const ids = Array.from(selected);
     if (ids.length === 0) return;
@@ -262,7 +270,10 @@ export const MobileCardView: React.FC<Props> = ({ entries, onEdit, onDelete, onQ
 
   return (
     <div className="mobile-card-view" style={{ direction: 'rtl' }}>
-      {Object.entries(grouped).map(([category, rows]) => (
+      {Object.entries(grouped).map(([category, rows]) => {
+        const sortedRows = sortByProductName(rows);
+        
+        return (
         <section key={category} className="category">
           <header className="category-header" onClick={() => toggleSection(category)}>
             <span className="chevron">{collapsed[category] ? '▸' : '▾'}</span>
@@ -273,7 +284,7 @@ export const MobileCardView: React.FC<Props> = ({ entries, onEdit, onDelete, onQ
 
           {!collapsed[category] && (
             <div className="mobile-cards-container">
-              {rows.map((row) => (
+              {sortedRows.map((row) => (
                 <GestureCard
                   key={row.id || row.product + row.date}
                   row={row}
@@ -287,7 +298,8 @@ export const MobileCardView: React.FC<Props> = ({ entries, onEdit, onDelete, onQ
             </div>
           )}
         </section>
-      ))}
+        );
+      })}
 
       {selected.size > 0 && (
         <div className="actions-bar">
