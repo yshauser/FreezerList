@@ -1,6 +1,6 @@
 // src/components/AddProductWizard.tsx
 import React, { useEffect, useState, useRef } from 'react';
-import { DEFAULT_UNITS, UNITS_FRACTIONS, type EntryDraft } from '../types';
+import { DEFAULT_UNITS, UNITS_FRACTIONS, LOCATIONS, type EntryDraft } from '../types';
 import { CATEGORIES, PRODUCTS_BY_CATEGORY, defaultAmountFor, defaultUnitsFor } from '../types';
 import { formatDateToDDMMYY, parseDateFromDDMMYY, todayISO } from '../lib/dateUtils';
 
@@ -25,6 +25,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
     cleanState: false,
     skinState: false,
     comments: '',
+    location: '',
   });
 
   // DD/MM/YY mirrored field (for step 2 date)
@@ -36,7 +37,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
     // reset wizard each time it opens
     setStep(1);
     const iso = todayISO();
-    setDraft(d => ({ ...d, date: iso, product: '', amount: 0, units: '', cleanState: false, skinState: false, comments: '' }));
+    setDraft(d => ({ ...d, date: iso, product: '', amount: 0, units: '', cleanState: false, skinState: false, comments: '', location: '' }));
     setDateDisplay(formatDateToDDMMYY(iso));
   }, [open]);
 
@@ -50,11 +51,11 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
 
   // --- Step 1: category selection ---
   const chooseCategory = (cat: EntryDraft['category']) => {
-    setDraft(d => ({ ...d, category: cat, product: '', amount: 0, units: '' }));
+    setDraft(d => ({ ...d, category: cat, product: '', amount: 0, units: '', location: '' }));
     setStep(2);
   };
 
-    /** Step 2: choose predefined product for the chosen category */
+  /** Step 2: choose predefined product for the chosen category */
   const chooseProduct = (prod: string) => {
     const category = draft.category;
 
@@ -124,7 +125,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
     });
   };
 
-    // Compute total steps dynamically
+  // Compute total steps dynamically
   const lastStep: Step = isMeat ? 5 : 4;
   console.log ('is meat', {isMeat, lastStep, step})
 
@@ -278,6 +279,15 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
                   ))}
                 </datalist>
               </label>
+
+              <label>
+                מיקום
+                <select name="location" value={draft.location ?? ''} onChange={onCoreChange}>
+                  {LOCATIONS.map(loc => (
+                    <option key={loc} value={loc}>{loc === '' ? 'לא ידוע' : loc}</option>
+                  ))}
+                </select>
+              </label>
             </section>
           )}
 
@@ -331,6 +341,7 @@ export const AddProductWizard: React.FC<Props> = ({ open, onCancel, onComplete }
                     <div><b>עור:</b> {draft.skinState ? 'כן' : 'לא'}</div>
                   </>
                 )}
+                <div><b>מיקום:</b> {draft.location || 'לא ידוע'}</div>
                 <div><b>הערות:</b> {draft.comments?.trim() ? draft.comments : '—'}</div>
               </div>
             </section>

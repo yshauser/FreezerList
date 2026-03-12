@@ -158,6 +158,7 @@ const GestureCard: React.FC<CardProps> = ({
               {isNaN(row.amount) ? '' : row.amount} {row.units}
             </span>
             <span className="date">{formatDateToDDMMYY(row.date)}</span>
+            <span className="location">{row.location || 'לא ידוע'}</span>
           </div>
 
           {isMeat && (

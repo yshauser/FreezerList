@@ -98,6 +98,7 @@ const openAdd = () => setAddOpen(true);
           cleanState: draft.cleanState,
           skinState: draft.skinState,
           comments: draft.comments,
+          location: draft.location,
         });
       }
       setFormOpen(false);
@@ -121,6 +122,7 @@ async function onAddComplete(draft: EntryDraft) {
       cleanState: draft.cleanState,
       skinState: draft.skinState,
       comments: draft.comments,
+      location: draft.location,
     });
     setAddOpen(false);
     await reload();

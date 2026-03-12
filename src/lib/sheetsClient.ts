@@ -1,6 +1,6 @@
 
 // src/lib/sheetsClient.ts
-import type { Entry, Category } from '../types';
+import type { Entry, Category, Location } from '../types';
 
 export type SheetsConfig = {
   spreadsheetId: string;
@@ -17,6 +17,7 @@ const HEADERS = [
   'cleanState',
   'skinState',
   'comments',
+  'location',
 ] as const;
 type Header = typeof HEADERS[number];
 
@@ -53,7 +54,7 @@ export async function getSheetId(spreadsheetId: string, sheetName: string): Prom
 }
 
 export async function readEntries(cfg: SheetsConfig): Promise<Entry[]> {
-  const range = `${cfg.sheetName}!A1:I`; // 9 columns
+  const range = `${cfg.sheetName}!A1:J`; // 10 columns
   const resp = await window.gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: cfg.spreadsheetId,
     range,
@@ -73,6 +74,7 @@ export async function readEntries(cfg: SheetsConfig): Promise<Entry[]> {
         cleanState: hebToBool(row[6]),
         skinState: hebToBool(row[7]),
         comments: row[8] ?? '',
+        location: (row[9] ?? '') as Location,
     };
     return record as Entry;
   });
@@ -80,7 +82,7 @@ export async function readEntries(cfg: SheetsConfig): Promise<Entry[]> {
 
 export async function appendEntry(cfg: SheetsConfig, entry: Omit<Entry, 'id'> & { id?: string }) {
   const id = entry.id ?? crypto.randomUUID();
-  const range = `${cfg.sheetName}!A:I`;
+  const range = `${cfg.sheetName}!A:J`;
   const body = {
     values: [[
       id,
@@ -92,6 +94,7 @@ export async function appendEntry(cfg: SheetsConfig, entry: Omit<Entry, 'id'> & 
       boolToHeb(entry.cleanState), 
       boolToHeb(entry.skinState), 
       entry.comments ?? '',
+      entry.location ?? '',
     ]],
   };
   const query = {
@@ -117,7 +120,7 @@ export async function updateEntryById(cfg: SheetsConfig, sheetId: number, id: st
 
   if (!rowIndex1Based || rowIndex1Based < 2) throw new Error('id not found');
 
-  const a1 = `${cfg.sheetName}!A${rowIndex1Based}:I${rowIndex1Based}`;
+  const a1 = `${cfg.sheetName}!A${rowIndex1Based}:J${rowIndex1Based}`;
   const body = {
     range: a1,
     majorDimension: 'ROWS',
@@ -131,6 +134,7 @@ export async function updateEntryById(cfg: SheetsConfig, sheetId: number, id: st
       boolToHeb(entry.cleanState),
       boolToHeb(entry.skinState),
       entry.comments ?? '',
+      entry.location ?? '',
     ]],
   };
   await window.gapi.client.sheets.spreadsheets.values.update(

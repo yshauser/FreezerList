@@ -1,8 +1,7 @@
-
 // src/components/EntryForm.tsx
 import React, { useEffect, useState, useRef } from 'react';
 import type { Entry, EntryDraft } from '../types';
-import { CATEGORIES, UNITS_FRACTIONS } from '../types';
+import { CATEGORIES, UNITS_FRACTIONS, LOCATIONS } from '../types';
 import { formatDateToDDMMYY, parseDateFromDDMMYY, todayISO } from '../lib/dateUtils';
 
 // const getTodayDateFormatted = () => {
@@ -32,6 +31,7 @@ export const EntryForm: React.FC<Props> = ({ open, initial, onCancel, onApply })
 		cleanState: false,
 		skinState: false,
 		comments: '',
+		location: '',
 	});
 
 	
@@ -189,6 +189,15 @@ export const EntryForm: React.FC<Props> = ({ open, initial, onCancel, onApply })
 					<label>
 						יחידות
 						<input name="units" value={draft.units} onChange={onChange} />
+					</label>
+
+					<label>
+						מיקום
+						<select name="location" value={draft.location ?? ''} onChange={onChange}>
+							{LOCATIONS.map(loc => (
+								<option key={loc} value={loc}>{loc === '' ? 'לא ידוע' : loc}</option>
+							))}
+						</select>
 					</label>
 
 					<label className="checkbox">

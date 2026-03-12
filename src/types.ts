@@ -78,6 +78,9 @@ export function defaultUnitsFor(category: Category, product: string): string {
   // else fallback by category
   return CATEGORY_FALLBACK_UNITS[category] ?? '';
 }
+export type Location = 'מקרר' | 'מרפסת שירות' | 'מרפסת שמש' | '';
+export const LOCATIONS: Location[] = ['', 'מקרר', 'מרפסת שירות', 'מרפסת שמש'];
+
 export interface Entry {
     id: string;
     product: string;
@@ -88,5 +91,6 @@ export interface Entry {
     cleanState?: boolean;
     skinState?: boolean;
     comments: string;
+    location?: Location;
 }
 export type EntryDraft = Omit<Entry, 'id'> & { id?: string };

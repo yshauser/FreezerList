@@ -29,6 +29,7 @@ const headerHebrewMap: Record<string, string> = {
   units: 'יחידות',
   cleanState: 'נקי',
   skinState: 'עור',
+  location: 'מיקום',
   // comments: 'הערות',
 }
 
@@ -36,8 +37,8 @@ const headerHebrewMap: Record<string, string> = {
 function headersForCategory(category: string): string[] {
   // For 'בשר' show cleanState & skinState; otherwise omit them
   return category === 'בשר'
-    ? ['product', 'date', 'amount', 'units', 'cleanState', 'skinState']
-    : ['product', 'date', 'amount', 'units'];
+    ? ['product', 'date', 'amount', 'units', 'cleanState', 'skinState', 'location']
+    : ['product', 'date', 'amount', 'units', 'location'];
 }
 
 // Sort state per category
@@ -191,6 +192,7 @@ const GestureRow: React.FC<RowProps> = ({ row, headers, isSelected, isExpanded, 
       case 'amount': return <span dir="rtl">{isNaN(row.amount) ? '' : row.amount}</span>;
       case 'cleanState': return row.cleanState ? 'כן' : 'לא';
       case 'skinState':  return row.skinState  ? 'כן' : 'לא';
+      case 'location':   return row.location || 'לא ידוע';
       default: return (row as any)[key] ?? '';
     }
   };
