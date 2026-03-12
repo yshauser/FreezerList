@@ -5,6 +5,7 @@ import type { Entry } from '../types';
 import { groupByCategory  } from '../lib/fetchSheet';
 import { formatDateToDDMMYY } from '../lib/dateUtils';
 import { useVibration } from '../contexts/VibrationContext';
+import { useExpandMode } from '../contexts/ExpandModeContext';
 import { vibrateShort } from '../lib/vibration';
 
 interface Props {
@@ -297,14 +298,9 @@ function useIsMobile() {
 
 const SheetTableDesktop: React.FC<Props> = ({ entries, onEdit, onDelete, onQuickAdjust }) => {
   const grouped = useMemo(() => groupByCategory(entries), [entries]);
-  // Initialize all categories as collapsed by default
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
-    const initialCollapsed: Record<string, boolean> = {};
-    Object.keys(grouped).forEach(category => {
-      initialCollapsed[category] = true;
-    });
-    return initialCollapsed;
-  });
+  const { expandMode } = useExpandMode();
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const [sortState, setSortState] = useState<Record<string, { key: SortKey; dir: SortDir }>>({
     'בשר': { key: 'product', dir: 'desc' },
     // add others if you want defaults
@@ -332,8 +328,17 @@ const SheetTableDesktop: React.FC<Props> = ({ entries, onEdit, onDelete, onQuick
     }
   };
 
-  const toggleSection = (cat: string) =>
-    setCollapsed(s => ({ ...s, [cat]: !(s[cat] ?? false) }));
+  const toggleSection = (cat: string) => {
+    if (expandMode === 'אחד') {
+      setOpenCategory(prev => (prev === cat ? null : cat));
+    } else {
+      setOpenCategories(prev => {
+        const next = new Set(prev);
+        if (next.has(cat)) next.delete(cat); else next.add(cat);
+        return next;
+      });
+    }
+  };
 
   // Toggle sorting per category
   const onSortClick = (cat: string, key: SortKey) =>
@@ -389,11 +394,11 @@ return (
         return (
           <section key={category} className="category">
             <header className="category-header" onClick={() => toggleSection(category)}>
-              <span className="chevron">{collapsed[category] ? '▸' : '▾'}</span>
+              <span className="chevron">{(expandMode === 'אחד' ? openCategory === category : openCategories.has(category)) ? '▾' : '▸'}</span>
               <h3>{category} <small>({rows.length})</small></h3>
             </header>
 
-            {!collapsed[category] && (
+            {(expandMode === 'אחד' ? openCategory === category : openCategories.has(category)) && (
               <table className="nice-table">
                 <thead>
                   <tr>

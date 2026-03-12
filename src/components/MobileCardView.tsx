@@ -4,6 +4,7 @@ import type { Entry } from '../types';
 import { groupByCategory } from '../lib/fetchSheet';
 import { formatDateToDDMMYY } from '../lib/dateUtils';
 import { useVibration } from '../contexts/VibrationContext';
+import { useExpandMode } from '../contexts/ExpandModeContext';
 import { vibrateShort } from '../lib/vibration';
 
 interface Props {
@@ -203,13 +204,9 @@ const GestureCard: React.FC<CardProps> = ({
 
 export const MobileCardView: React.FC<Props> = ({ entries, onEdit, onDelete, onQuickAdjust }) => {
   const grouped = useMemo(() => groupByCategory(entries), [entries]);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
-    const initialCollapsed: Record<string, boolean> = {};
-    Object.keys(grouped).forEach((category) => {
-      initialCollapsed[category] = true;
-    });
-    return initialCollapsed;
-  });
+  const { expandMode } = useExpandMode();
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -228,7 +225,17 @@ export const MobileCardView: React.FC<Props> = ({ entries, onEdit, onDelete, onQ
     }
   };
 
-  const toggleSection = (cat: string) => setCollapsed((s) => ({ ...s, [cat]: !s[cat] }));
+  const toggleSection = (cat: string) => {
+    if (expandMode === 'אחד') {
+      setOpenCategory(prev => (prev === cat ? null : cat));
+    } else {
+      setOpenCategories(prev => {
+        const next = new Set(prev);
+        if (next.has(cat)) next.delete(cat); else next.add(cat);
+        return next;
+      });
+    }
+  };
 
   const toggleExpandedExclusive = (id: string) => {
     setExpanded((prev) => (prev.has(id) ? new Set() : new Set([id])));
@@ -277,13 +284,13 @@ export const MobileCardView: React.FC<Props> = ({ entries, onEdit, onDelete, onQ
         return (
         <section key={category} className="category">
           <header className="category-header" onClick={() => toggleSection(category)}>
-            <span className="chevron">{collapsed[category] ? '▸' : '▾'}</span>
+            <span className="chevron">{(expandMode === 'אחד' ? openCategory === category : openCategories.has(category)) ? '▾' : '▸'}</span>
             <h3>
               {category} <small>({rows.length})</small>
             </h3>
           </header>
 
-          {!collapsed[category] && (
+          {(expandMode === 'אחד' ? openCategory === category : openCategories.has(category)) && (
             <div className="mobile-cards-container">
               {sortedRows.map((row) => (
                 <GestureCard

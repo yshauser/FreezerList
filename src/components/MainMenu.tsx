@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useVibration } from '../contexts/VibrationContext';
+import { useExpandMode } from '../contexts/ExpandModeContext';
 
 export const MainMenu: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { vibrationEnabled, toggleVibration } = useVibration();
+  const { expandMode, toggleExpandMode } = useExpandMode();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleThemeToggle = () => {
@@ -14,6 +16,11 @@ export const MainMenu: React.FC = () => {
 
   const handleVibrationToggle = () => {
     toggleVibration();
+    setIsOpen(false);
+  };
+
+  const handleExpandModeToggle = () => {
+    toggleExpandMode();
     setIsOpen(false);
   };
 
@@ -29,6 +36,9 @@ export const MainMenu: React.FC = () => {
           </button>
           <button onClick={handleVibrationToggle}>
             {vibrationEnabled ? '📳' : '🔕'} רטט {vibrationEnabled ? 'פעיל' : 'כבוי'}
+          </button>
+          <button onClick={handleExpandModeToggle}>
+            {expandMode === 'אחד' ? '📂' : '📁'} קטגוריות פתוחות: {expandMode}
           </button>
         </div>
       )}

@@ -1,7 +1,7 @@
 {
   "name": "freezerlist",
   "private": true,
-  "version": "1.2.01",
+  "version": "1.2.02",
   "type": "module",
   "homepage": "https://yshauser.github.io/FreezerList",
   "scripts": {

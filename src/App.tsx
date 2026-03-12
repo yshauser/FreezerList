@@ -6,6 +6,7 @@ import { toErrorString } from './lib/errors';
 import { VersionBadge } from './components/VersionBadge';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { VibrationProvider } from './contexts/VibrationContext'; // Import ThemeProvider
+import { ExpandModeProvider } from './contexts/ExpandModeContext';
 
 import { initGapiClient, initTokenClient, ensureSignedIn } from './lib/googleAuth'; //signOut
 import { AddProductWizard } from './components/AddProductWizard';
@@ -225,7 +226,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <VibrationProvider>
-        <AppContent />
+        <ExpandModeProvider>
+          <AppContent />
+        </ExpandModeProvider>
       </VibrationProvider>
     </ThemeProvider>
   );
